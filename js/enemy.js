@@ -1,3 +1,5 @@
+import { increaseAngledBulletCount, angledBullets } from "./angledBullet.js";
+
 // Array menyimpan semua musuh yang aktif di layar
 export const enemies = [];
 
@@ -56,6 +58,16 @@ export function drawEnemies(ctx, bullets, player) {
       onGameOver(); // panggil fungsi game over
     }
 
+    // **Tambahkan ini untuk peluru miring**
+    angledBullets.forEach((b, bi) => {
+      if (b.x > e.x && b.x < e.x + e.w && b.y > e.y && b.y < e.y + e.h) {
+        angledBullets.splice(bi, 1);
+        enemies.splice(ei, 1);
+        score++;
+        // Bisa juga tambahkan efek/level up jika musuh tertentu
+      }
+    });
+
     // Jika musuh sudah melewati bawah layar, hapus dari array supaya tidak diproses lagi
     if (e.y > ctx.canvas.height) enemies.splice(ei, 1);
 
@@ -81,6 +93,16 @@ export function drawEnemies(ctx, bullets, player) {
         }
 
         checkLevelUp(); // cek apakah skor sudah cukup untuk naik level
+      }
+    });
+
+    // **Tambahkan ini untuk peluru miring**
+    angledBullets.forEach((b, bi) => {
+      if (b.x > e.x && b.x < e.x + e.w && b.y > e.y && b.y < e.y + e.h) {
+        angledBullets.splice(bi, 1);
+        enemies.splice(ei, 1);
+        score++;
+        // Bisa juga tambahkan efek/level up jika musuh tertentu
       }
     });
 
@@ -117,15 +139,17 @@ export function setOnPurpleEnemyKilledCallback(callback) {
   onPurpleEnemyKilled = callback;
 }
 
-// Fungsi mengecek apakah pemain sudah cukup skor untuk naik level
 function checkLevelUp() {
-  // Jika level belum maksimum dan skor sudah mencapai target untuk level berikutnya
   if (currentLevel < levelStages.length && score >= levelStages[currentLevel]) {
-    currentLevel++; // naik level
+    currentLevel++;
     console.log(`Level Up! Now at Level ${currentLevel}`);
 
-    // Saat naik level, spawn musuh ungu 1 buah sebagai tantangan khusus
     spawnPurpleEnemy();
+
+    // Update senjata peluru miring di level tertentu, misalnya tiap 3 level
+    if ([2, 10, 15, 30, 35, 60, 70].includes(currentLevel)) {
+      increaseAngledBulletCount();
+    }
   }
 }
 

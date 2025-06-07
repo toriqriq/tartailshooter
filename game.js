@@ -1,6 +1,14 @@
 // Import objek player dan fungsi untuk menggambar player
 import { player, drawPlayer } from "./js/player.js";
 
+import {
+  angledBullets,
+  drawAngledBullets,
+  angledAutoShoot,
+  increaseAngledBulletCount,
+  angledBulletCount,
+} from "./js/angledBullet.js";
+
 // Import variabel dan fungsi terkait peluru biasa dan peluru pelacak
 import {
   bullets, // array peluru biasa
@@ -61,12 +69,15 @@ function gameLoop() {
   // Gambar peluru pelacak (homing) yang ada di layar dan bergerak ke musuh
   drawHomingBullets(ctx, enemies);
 
+  drawAngledBullets(ctx);
+
   // Gambar informasi skor, level, dan jumlah peluru di pojok kiri atas
   ctx.fillStyle = "white";
   ctx.font = "16px sans-serif";
   ctx.fillText(`Score: ${score}`, 10, 20);
   ctx.fillText(`Level: ${currentLevel}`, 10, 40);
   ctx.fillText(`Bullets: ${bulletCount}`, 10, 60);
+  ctx.fillText(`Angled Bullets: ${angledBulletCount}`, 10, 80);
 
   // Minta browser memanggil gameLoop lagi di frame berikutnya (animasi berjalan lancar)
   requestAnimationFrame(gameLoop);
@@ -86,6 +97,8 @@ setInterval(() => spawnGreenEnemy(), 8000);
 
 // Peluru pelacak otomatis ditembakkan tiap 5 detik
 setInterval(() => shootHoming(player), 5000);
+
+setInterval(() => angledAutoShoot(player), 6000); // Peluru miring otomatis
 
 // Hubungkan callback untuk menambah peluru jika musuh ungu berhasil dibunuh
 setOnPurpleEnemyKilledCallback(() => {
