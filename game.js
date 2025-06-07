@@ -38,6 +38,7 @@ function gameLoop() {
   drawPlayer(ctx);
   drawBullets(ctx);
   drawEnemies(ctx, bullets, player); // kirim player ke drawEnemies
+  drawHomingBullets(ctx, enemies);
 
   ctx.fillStyle = "white";
   ctx.font = "16px sans-serif";
