@@ -1,7 +1,7 @@
 export const enemies = [];
 export let score = 0;
 export let currentLevel = 1;
-export const levelStages = [10, 20, 30, 50]; // ⬅️ Bisa kamu sesuaikan
+export const levelStages = [5, 10, 30, 50]; // ⬅️ Bisa kamu sesuaikan
 
 const MAX_ENEMIES_BASE = 2;
 
@@ -25,7 +25,10 @@ export function drawEnemies(ctx, bullets) {
 }
 
 function checkLevelUp() {
-  if (currentLevel < levelStages.length && score >= levelStages[currentLevel]) {
+  if (
+    currentLevel < levelStages.length &&
+    score >= levelStages[currentLevel - 1]
+  ) {
     currentLevel++;
     console.log(`Level Up! Now at Level ${currentLevel}`);
   }
