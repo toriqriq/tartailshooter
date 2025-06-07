@@ -1,4 +1,9 @@
 export const bullets = [];
+export let bulletCount = 1; // mulai dari 1 peluru
+
+export function setBulletCount(count) {
+  bulletCount = count;
+}
 
 export function drawBullets(ctx) {
   ctx.fillStyle = "yellow";
@@ -10,5 +15,15 @@ export function drawBullets(ctx) {
 }
 
 export function autoShoot(player) {
-  bullets.push({ x: player.x, y: player.y });
+  for (let i = 0; i < bulletCount; i++) {
+    let offsetX = 0;
+    if (bulletCount > 1) {
+      offsetX = (i - Math.floor(bulletCount / 2)) * 10;
+    }
+
+    // Tambahkan delay 0.5 detik antar peluru
+    setTimeout(() => {
+      bullets.push({ x: player.x + offsetX, y: player.y });
+    }, i * 500); // i * 500ms = 0ms, 500ms, 1000ms, dst.
+  }
 }
