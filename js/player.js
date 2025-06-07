@@ -7,13 +7,14 @@ export const player = {
   speed: 5, // kecepatan gerak player dalam pixel per update
 };
 
-// Fungsi menggambar player ke canvas, menerima context canvas sebagai argumen
 export function drawPlayer(ctx) {
-  ctx.fillStyle = "cyan"; // set warna isi gambar player menjadi cyan (biru muda)
-  ctx.beginPath(); // mulai menggambar jalur baru (path)
-  ctx.moveTo(player.x, player.y); // pindah ke titik puncak segitiga player (posisi x,y)
-  ctx.lineTo(player.x - player.w / 2, player.y + player.h); // gambar garis ke kiri bawah segitiga
-  ctx.lineTo(player.x + player.w / 2, player.y + player.h); // gambar garis ke kanan bawah segitiga
-  ctx.closePath(); // tutup jalur untuk membentuk segitiga (kembali ke titik awal)
-  ctx.fill(); // isi (warnai) segitiga dengan warna cyan yang sudah diset
+  ctx.fillStyle = "cyan";
+  ctx.beginPath();
+  ctx.moveTo(player.x, player.y); // ujung depan
+  ctx.lineTo(player.x - player.w / 2, player.y + player.h * 0.6); // sayap kiri
+  ctx.lineTo(player.x - player.w / 4, player.y + player.h); // kiri ekor
+  ctx.lineTo(player.x + player.w / 4, player.y + player.h); // kanan ekor
+  ctx.lineTo(player.x + player.w / 2, player.y + player.h * 0.6); // sayap kanan
+  ctx.closePath();
+  ctx.fill();
 }

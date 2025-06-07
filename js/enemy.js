@@ -9,7 +9,10 @@ export let currentLevel = 1;
 
 // Array target skor untuk naik level secara berurutan
 // Misal untuk mencapai level 2 butuh skor 2, level 3 butuh 4, dst.
-export const levelStages = [2, 4, 6, 8, 10, 12, 14, 20, 30, 40, 90, 100];
+export const levelStages = [
+  2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 40, 50, 60, 70, 80,
+  90, 100,
+];
 
 // Konstanta jumlah musuh dasar (merah) saat level 1
 const MAX_ENEMIES_BASE = 2;
