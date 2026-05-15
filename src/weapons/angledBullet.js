@@ -30,34 +30,37 @@ export function drawAngledBullets(ctx) {
 }
 
 // fungsi untuk tembak otomatis peluru miring
-export function angledAutoShoot(player) {
+export function angledAutoShoot(player, damage = 1) {
   if (angledBulletCount <= 0) return;
 
-  // posisi awal peluru (dari player)
   const startX = player.x + player.w / 2;
   const startY = player.y;
 
-  // buat peluru ruas sesuai angledBulletCount
   for (let i = 0; i < angledBulletCount; i++) {
-    // setiap ruas tembakan punya offset sudut kiri dan kanan
     const angleDeg = ANGLED_BULLET_ANGLE * (i + 1);
-
-    // konversi derajat ke radian
     const angleLeft = ((270 - angleDeg) * Math.PI) / 180;
     const angleRight = ((270 + angleDeg) * Math.PI) / 180;
 
-    // vx, vy arah kiri dan kanan
     const vxLeft = Math.cos(angleLeft) * ANGLED_BULLET_SPEED;
     const vyLeft = Math.sin(angleLeft) * ANGLED_BULLET_SPEED;
 
     const vxRight = Math.cos(angleRight) * ANGLED_BULLET_SPEED;
     const vyRight = Math.sin(angleRight) * ANGLED_BULLET_SPEED;
 
-    // peluru kiri
-    angledBullets.push({ x: startX, y: startY, vx: vxLeft, vy: vyLeft });
-
-    // peluru kanan
-    angledBullets.push({ x: startX, y: startY, vx: vxRight, vy: vyRight });
+    angledBullets.push({
+      x: startX,
+      y: startY,
+      vx: vxLeft,
+      vy: vyLeft,
+      damage,
+    });
+    angledBullets.push({
+      x: startX,
+      y: startY,
+      vx: vxRight,
+      vy: vyRight,
+      damage,
+    });
   }
 }
 

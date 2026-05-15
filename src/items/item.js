@@ -8,19 +8,24 @@ export const ITEMS = {
       name: "Basic Armor",
       type: "armor",
       defense: 1, // mengurangi damage
-      description: "Armor dasar yang memberikan sedikit perlindungan",
+      healthBonus: 2, // tambah HP maksimum
+      description:
+        "Armor dasar yang memberikan sedikit perlindungan dan daya tahan lebih baik",
     },
     advancedArmor: {
       name: "Advanced Armor",
       type: "armor",
       defense: 2,
-      description: "Armor canggih dengan perlindungan lebih baik",
+      healthBonus: 4,
+      description:
+        "Armor canggih dengan perlindungan lebih baik dan daya tahan kuat",
     },
     eliteArmor: {
       name: "Elite Armor",
       type: "armor",
       defense: 3,
-      description: "Armor elit untuk perlindungan maksimal",
+      healthBonus: 6,
+      description: "Armor elit untuk perlindungan maksimal dan HP ekstra",
     },
   },
   // Energy items
@@ -29,19 +34,24 @@ export const ITEMS = {
       name: "Basic Energy",
       type: "energy",
       speedBoost: 1, // tambah kecepatan
-      description: "Energy dasar yang meningkatkan kecepatan sedikit",
+      fireRateBonus: 200, // lebih cepat menembak
+      description:
+        "Energy dasar yang meningkatkan kecepatan dan tempo tembakan sedikit",
     },
     advancedEnergy: {
       name: "Advanced Energy",
       type: "energy",
       speedBoost: 2,
-      description: "Energy canggih untuk kecepatan lebih tinggi",
+      fireRateBonus: 400,
+      description:
+        "Energy canggih untuk kecepatan lebih tinggi dan tembakan lebih cepat",
     },
     eliteEnergy: {
       name: "Elite Energy",
       type: "energy",
       speedBoost: 3,
-      description: "Energy elit untuk kecepatan maksimal",
+      fireRateBonus: 600,
+      description: "Energy elit untuk kecepatan maksimal dan fire rate terbaik",
     },
   },
 };

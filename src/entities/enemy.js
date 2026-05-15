@@ -40,100 +40,112 @@ export function setGameOverCallback(callback) {
 // - bullets = array peluru biasa (untuk deteksi tabrakan)
 // - player = objek player (untuk deteksi tabrakan musuh ke player)
 export function drawEnemies(ctx, bullets, player) {
-  enemies.forEach((e, ei) => {
-    e.y += 2; // musuh bergerak turun ke bawah sebanyak 2 piksel tiap frame
+  for (let ei = enemies.length - 1; ei >= 0; ei--) {
+    const e = enemies[ei];
+    e.y += 2;
 
-    // Tentukan warna musuh berdasarkan properti 'color'
     if (e.color === "purple") ctx.fillStyle = "purple";
     else if (e.color === "green") ctx.fillStyle = "green";
-    else ctx.fillStyle = "red"; // default merah
+    else ctx.fillStyle = "red";
 
-    // Gambar musuh berupa kotak persegi dengan posisi dan ukuran e.x, e.y, e.w, e.h
     ctx.fillRect(e.x, e.y, e.w, e.h);
 
-    // 💥 DETEKSI TABRAKAN MUSUH DENGAN PLAYER
-    // Jika posisi kotak musuh dan player tumpang tindih (collision box)
     if (
       e.x < player.x + player.w &&
       e.x + e.w > player.x &&
       e.y < player.y + player.h &&
       e.y + e.h > player.y
     ) {
-      onGameOver(); // panggil fungsi game over
+      const damage = Math.max(1, e.damage - player.defense);
+      player.health -= damage;
+      enemies.splice(ei, 1);
+      if (player.health <= 0) {
+        onGameOver();
+      }
+      continue;
     }
 
-    // **Tambahkan ini untuk peluru miring**
-    angledBullets.forEach((b, bi) => {
+    let enemyDestroyed = false;
+
+    for (let bi = bullets.length - 1; bi >= 0; bi--) {
+      const b = bullets[bi];
+      if (b.x > e.x && b.x < e.x + e.w && b.y > e.y && b.y < e.y + e.h) {
+        bullets.splice(bi, 1);
+        e.health -= b.damage;
+
+        if (e.health <= 0) {
+          enemies.splice(ei, 1);
+          score++;
+          dropRandomItem();
+          if (e.color === "purple") {
+            onPurpleEnemyKilled();
+          }
+          if (e.color === "green") {
+            addHomingBullet();
+          }
+          checkLevelUp();
+          enemyDestroyed = true;
+        }
+        break;
+      }
+    }
+
+    if (enemyDestroyed) continue;
+
+    for (let bi = angledBullets.length - 1; bi >= 0; bi--) {
+      const b = angledBullets[bi];
       if (b.x > e.x && b.x < e.x + e.w && b.y > e.y && b.y < e.y + e.h) {
         angledBullets.splice(bi, 1);
-        enemies.splice(ei, 1);
-        score++;
-        // Bisa juga tambahkan efek/level up jika musuh tertentu
+        e.health -= b.damage || 1;
+
+        if (e.health <= 0) {
+          enemies.splice(ei, 1);
+          score++;
+          dropRandomItem();
+          if (e.color === "purple") {
+            onPurpleEnemyKilled();
+          }
+          if (e.color === "green") {
+            addHomingBullet();
+          }
+          checkLevelUp();
+          enemyDestroyed = true;
+        }
+        break;
       }
-    });
+    }
 
-    // Jika musuh sudah melewati bawah layar, hapus dari array supaya tidak diproses lagi
-    if (e.y > ctx.canvas.height) enemies.splice(ei, 1);
+    if (enemyDestroyed) continue;
 
-    // 🔴 DETEKSI TABRAKAN PELURU BIASA DENGAN MUSUH
-    bullets.forEach((b, bi) => {
-      // Jika posisi peluru ada di dalam kotak musuh (collision)
+    for (let bi = homingBullets.length - 1; bi >= 0; bi--) {
+      const b = homingBullets[bi];
       if (b.x > e.x && b.x < e.x + e.w && b.y > e.y && b.y < e.y + e.h) {
-        bullets.splice(bi, 1); // hapus peluru
+        homingBullets.splice(bi, 1);
+        e.health -= b.damage || 1;
 
-        // Jika musuh berwarna hijau, butuh 2 kali tembakan baru mati
-        if (e.color === "green") {
-          e.hit = (e.hit || 0) + 1; // hit counter (default 0)
-          if (e.hit < 2) return; // jika belum kena dua kali, keluar (musuh belum mati)
-          addHomingBullet(); // musuh hijau mati memberi reward peluru pelacak
+        if (e.health <= 0) {
+          enemies.splice(ei, 1);
+          score++;
+          dropRandomItem();
+          if (e.color === "purple") {
+            onPurpleEnemyKilled();
+          }
+          if (e.color === "green") {
+            addHomingBullet();
+          }
+          checkLevelUp();
+          enemyDestroyed = true;
         }
-
-        enemies.splice(ei, 1); // hapus musuh
-        score++; // tambah skor pemain
-        dropRandomItem(); // chance drop item saat musuh mati
-
-        // Jika musuh ungu mati, panggil callback khusus
-        if (e.color === "purple") {
-          onPurpleEnemyKilled();
-        }
-
-        checkLevelUp(); // cek apakah skor sudah cukup untuk naik level
+        break;
       }
-    });
+    }
 
-    // **Tambahkan ini untuk peluru miring**
-    angledBullets.forEach((b, bi) => {
-      if (b.x > e.x && b.x < e.x + e.w && b.y > e.y && b.y < e.y + e.h) {
-        angledBullets.splice(bi, 1);
-        enemies.splice(ei, 1);
-        score++;
-        // Bisa juga tambahkan efek/level up jika musuh tertentu
-      }
-    });
+    if (enemyDestroyed) continue;
 
-    // 🔵 DETEKSI TABRAKAN PELURU PELACAK DENGAN MUSUH
-    homingBullets.forEach((b, bi) => {
-      if (b.x > e.x && b.x < e.x + e.w && b.y > e.y && b.y < e.y + e.h) {
-        homingBullets.splice(bi, 1); // hapus peluru pelacak
-
-        // Logika sama seperti peluru biasa untuk musuh hijau
-        if (e.color === "green") {
-          e.hit = (e.hit || 0) + 1;
-          if (e.hit < 2) return;
-          addHomingBullet();
-        }
-
-        enemies.splice(ei, 1); // hapus musuh
-        score++; // tambah skor
-
-        if (e.color === "purple") {
-          onPurpleEnemyKilled();
-        }
-
-        checkLevelUp();
-      }
-    });
-  });
+    if (e.y > ctx.canvas.height) {
+      enemies.splice(ei, 1);
+    }
+  }
 }
 
 // Fungsi callback khusus saat musuh ungu mati, default kosong
@@ -170,7 +182,15 @@ export function spawnEnemy(canvas) {
   const x = Math.random() * (canvas.width - size); // posisi horizontal acak
 
   // Tambah musuh merah ke array enemies
-  enemies.push({ x, y: 0, w: size, h: size, color: "red" });
+  enemies.push({
+    x,
+    y: 0,
+    w: size,
+    h: size,
+    color: "red",
+    health: 1,
+    damage: 1,
+  });
 }
 
 // Fungsi spawn musuh merah dengan interval acak antara minDelay dan maxDelay
@@ -192,7 +212,15 @@ function spawnPurpleEnemy() {
   const canvas = document.querySelector("canvas#game");
   const size = 30;
   const x = Math.random() * (canvas.width - size);
-  enemies.push({ x, y: 0, w: size, h: size, color: "purple" });
+  enemies.push({
+    x,
+    y: 0,
+    w: size,
+    h: size,
+    color: "purple",
+    health: 3,
+    damage: 3,
+  });
 }
 
 // Fungsi spawn musuh hijau (butuh 2 hit untuk mati) di posisi acak atas layar
@@ -200,8 +228,15 @@ export function spawnGreenEnemy() {
   const canvas = document.querySelector("canvas#game");
   const size = 30;
   const x = Math.random() * (canvas.width - size);
-  // properti hit = jumlah tembakan diterima, mulai dari 0
-  enemies.push({ x, y: 0, w: size, h: size, color: "green", hit: 0 });
+  enemies.push({
+    x,
+    y: 0,
+    w: size,
+    h: size,
+    color: "green",
+    health: 2,
+    damage: 2,
+  });
 }
 
 // Fungsi untuk drop item secara random saat musuh mati

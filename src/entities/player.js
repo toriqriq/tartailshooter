@@ -10,7 +10,11 @@ export const player = {
   h: 40, // tinggi player
   baseSpeed: 5, // kecepatan dasar
   speed: 5, // kecepatan gerak player dalam pixel per update (terpengaruh item)
+  baseHealth: 5,
+  maxHealth: 5,
+  health: 5,
   defense: 0, // defense dari armor
+  fireRateBonus: 0, // bonus fire rate dari energy
   inventory: [], // array item yang dimiliki
   equippedArmor: null, // item armor yang dikenakan
   equippedEnergy: null, // item energy yang dikenakan
@@ -48,9 +52,12 @@ export function equipItem(category, itemId) {
   if (category === "armor") {
     player.equippedArmor = item;
     player.defense = item.defense;
+    player.maxHealth = player.baseHealth + (item.healthBonus || 0);
+    player.health = Math.min(player.health, player.maxHealth);
   } else if (category === "energy") {
     player.equippedEnergy = item;
     player.speed = player.baseSpeed + item.speedBoost;
+    player.fireRateBonus = item.fireRateBonus || 0;
   }
   console.log(`Item ${item.name} dikenakan`);
   return true;
@@ -61,9 +68,12 @@ export function unequipItem(category) {
   if (category === "armor" && player.equippedArmor) {
     player.equippedArmor = null;
     player.defense = 0;
+    player.maxHealth = player.baseHealth;
+    player.health = Math.min(player.health, player.maxHealth);
   } else if (category === "energy" && player.equippedEnergy) {
     player.equippedEnergy = null;
     player.speed = player.baseSpeed;
+    player.fireRateBonus = 0;
   }
   console.log(`Item ${category} dilepas`);
 }

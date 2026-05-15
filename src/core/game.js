@@ -9,7 +9,6 @@ import {
 import {
   angledBullets,
   drawAngledBullets,
-  angledAutoShoot,
   increaseAngledBulletCount,
   angledBulletCount,
 } from "../weapons/angledBullet.js";
@@ -20,12 +19,12 @@ import { GameMenu } from "../ui/menu.js";
 import {
   bullets, // array peluru biasa
   drawBullets, // fungsi gambar peluru biasa
-  autoShoot, // fungsi otomatis tembak peluru biasa
+  fireWeapon, // fungsi menembak sesuai weapon
   bulletCount, // jumlah peluru yang tersedia
   setBulletCount, // fungsi set jumlah peluru
   drawHomingBullets, // fungsi gambar peluru pelacak
-  shootHoming, // fungsi tembak peluru pelacak
 } from "../weapons/bullet.js";
+import { getWeapon } from "../weapons/weapons.js";
 
 // Import variabel dan fungsi terkait musuh, skor, level, dan callback game over
 import {
@@ -95,6 +94,7 @@ function gameLoop() {
   ctx.fillText(`Level: ${currentLevel}`, 10, 40);
   ctx.fillText(`Bullets: ${bulletCount}`, 10, 60);
   ctx.fillText(`Angled Bullets: ${angledBulletCount}`, 10, 80);
+  ctx.fillText(`Health: ${player.health}/${player.maxHealth}`, 10, 100);
 
   // Minta browser memanggil gameLoop lagi di frame berikutnya (animasi berjalan lancar)
   requestAnimationFrame(gameLoop);
@@ -105,19 +105,22 @@ function startGame() {
   // Setup kontrol keyboard dan mouse untuk player di canvas
   setupControls(canvas, player);
 
-  // Jalankan autoShoot tiap 3 detik untuk otomatis menembak peluru biasa
-  setInterval(() => autoShoot(player), 3000);
+  player.health = player.maxHealth;
+  const selectedWeapon = getWeapon(player.selectedWeapon);
+  const adjustedFireRate = Math.max(
+    500,
+    selectedWeapon.fireRate - player.fireRateBonus,
+  );
+
+  setInterval(() => {
+    fireWeapon(player, selectedWeapon);
+  }, adjustedFireRate);
 
   // Spawn musuh merah secara acak tiap 3 sampai 8 detik
   spawnEnemyRandomInterval(canvas, 3000, 8000);
 
   // Spawn musuh hijau (butuh 2 hit) tiap 8 detik
   setInterval(() => spawnGreenEnemy(), 8000);
-
-  // Peluru pelacak otomatis ditembakkan tiap 5 detik
-  setInterval(() => shootHoming(player), 5000);
-
-  setInterval(() => angledAutoShoot(player), 6000); // Peluru miring otomatis
 
   // Hubungkan callback untuk menambah peluru jika musuh ungu berhasil dibunuh
   setOnPurpleEnemyKilledCallback(() => {
