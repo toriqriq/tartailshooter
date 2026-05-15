@@ -50,12 +50,7 @@ export function drawEnemies(ctx, bullets, player) {
 
     ctx.fillRect(e.x, e.y, e.w, e.h);
 
-    if (
-      e.x < player.x + player.w &&
-      e.x + e.w > player.x &&
-      e.y < player.y + player.h &&
-      e.y + e.h > player.y
-    ) {
+    if (checkPlayerCollision(e, player)) {
       const damage = Math.max(1, e.damage - player.defense);
       player.health -= damage;
       enemies.splice(ei, 1);
@@ -65,87 +60,57 @@ export function drawEnemies(ctx, bullets, player) {
       continue;
     }
 
-    let enemyDestroyed = false;
-
-    for (let bi = bullets.length - 1; bi >= 0; bi--) {
-      const b = bullets[bi];
-      if (b.x > e.x && b.x < e.x + e.w && b.y > e.y && b.y < e.y + e.h) {
-        bullets.splice(bi, 1);
-        e.health -= b.damage;
-
-        if (e.health <= 0) {
-          enemies.splice(ei, 1);
-          score++;
-          dropRandomItem();
-          if (e.color === "purple") {
-            onPurpleEnemyKilled();
-          }
-          if (e.color === "green") {
-            addHomingBullet();
-          }
-          checkLevelUp();
-          enemyDestroyed = true;
-        }
-        break;
-      }
-    }
-
-    if (enemyDestroyed) continue;
-
-    for (let bi = angledBullets.length - 1; bi >= 0; bi--) {
-      const b = angledBullets[bi];
-      if (b.x > e.x && b.x < e.x + e.w && b.y > e.y && b.y < e.y + e.h) {
-        angledBullets.splice(bi, 1);
-        e.health -= b.damage || 1;
-
-        if (e.health <= 0) {
-          enemies.splice(ei, 1);
-          score++;
-          dropRandomItem();
-          if (e.color === "purple") {
-            onPurpleEnemyKilled();
-          }
-          if (e.color === "green") {
-            addHomingBullet();
-          }
-          checkLevelUp();
-          enemyDestroyed = true;
-        }
-        break;
-      }
-    }
-
-    if (enemyDestroyed) continue;
-
-    for (let bi = homingBullets.length - 1; bi >= 0; bi--) {
-      const b = homingBullets[bi];
-      if (b.x > e.x && b.x < e.x + e.w && b.y > e.y && b.y < e.y + e.h) {
-        homingBullets.splice(bi, 1);
-        e.health -= b.damage || 1;
-
-        if (e.health <= 0) {
-          enemies.splice(ei, 1);
-          score++;
-          dropRandomItem();
-          if (e.color === "purple") {
-            onPurpleEnemyKilled();
-          }
-          if (e.color === "green") {
-            addHomingBullet();
-          }
-          checkLevelUp();
-          enemyDestroyed = true;
-        }
-        break;
-      }
-    }
-
-    if (enemyDestroyed) continue;
+    if (checkBulletHits(e, bullets, ei)) continue;
+    if (checkBulletHits(e, angledBullets, ei)) continue;
+    if (checkBulletHits(e, homingBullets, ei)) continue;
 
     if (e.y > ctx.canvas.height) {
       enemies.splice(ei, 1);
     }
   }
+}
+
+function checkPlayerCollision(enemy, player) {
+  return (
+    enemy.x < player.x + player.w &&
+    enemy.x + enemy.w > player.x &&
+    enemy.y < player.y + player.h &&
+    enemy.y + enemy.h > player.y
+  );
+}
+
+function checkBulletHits(enemy, bulletsArray, enemyIndex) {
+  for (let bi = bulletsArray.length - 1; bi >= 0; bi--) {
+    const bullet = bulletsArray[bi];
+    if (
+      bullet.x > enemy.x &&
+      bullet.x < enemy.x + enemy.w &&
+      bullet.y > enemy.y &&
+      bullet.y < enemy.y + enemy.h
+    ) {
+      bulletsArray.splice(bi, 1);
+      enemy.health -= bullet.damage || 1;
+      if (enemy.health <= 0) {
+        destroyEnemy(enemyIndex, enemy);
+        return true;
+      }
+      return false;
+    }
+  }
+  return false;
+}
+
+function destroyEnemy(enemyIndex, enemy) {
+  enemies.splice(enemyIndex, 1);
+  score++;
+  dropRandomItem();
+  if (enemy.color === "purple") {
+    onPurpleEnemyKilled();
+  }
+  if (enemy.color === "green") {
+    addHomingBullet();
+  }
+  checkLevelUp();
 }
 
 // Fungsi callback khusus saat musuh ungu mati, default kosong
@@ -218,7 +183,7 @@ function spawnPurpleEnemy() {
     w: size,
     h: size,
     color: "purple",
-    health: 3,
+    health: 1,
     damage: 3,
   });
 }

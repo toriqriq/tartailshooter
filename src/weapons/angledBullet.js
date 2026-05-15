@@ -1,10 +1,10 @@
 // src/weapons/angledBullet.js
 
 export let angledBullets = [];
-export let angledBulletCount = 1; // mulai dengan 1 ruas
+export let angledBulletCount = 1; // mulai dengan 1 peluru miring per tembakan
 
 const ANGLED_BULLET_SPEED = 6;
-const ANGLED_BULLET_ANGLE = 15; // derajat kemiringan tembakan kiri dan kanan
+const ANGLED_BULLET_ANGLE = 15; // derajat interval antar peluru miring
 
 export function drawAngledBullets(ctx) {
   angledBullets.forEach((b, i) => {
@@ -36,29 +36,20 @@ export function angledAutoShoot(player, damage = 1) {
   const startX = player.x + player.w / 2;
   const startY = player.y;
 
+  // Hitung offset sudut untuk tiap peluru total, bukan pasangan kiri-kanan otomatis
+  const centerIndex = (angledBulletCount - 1) / 2;
+
   for (let i = 0; i < angledBulletCount; i++) {
-    const angleDeg = ANGLED_BULLET_ANGLE * (i + 1);
-    const angleLeft = ((270 - angleDeg) * Math.PI) / 180;
-    const angleRight = ((270 + angleDeg) * Math.PI) / 180;
-
-    const vxLeft = Math.cos(angleLeft) * ANGLED_BULLET_SPEED;
-    const vyLeft = Math.sin(angleLeft) * ANGLED_BULLET_SPEED;
-
-    const vxRight = Math.cos(angleRight) * ANGLED_BULLET_SPEED;
-    const vyRight = Math.sin(angleRight) * ANGLED_BULLET_SPEED;
+    const angleDeg = ANGLED_BULLET_ANGLE * (i - centerIndex);
+    const angle = ((270 + angleDeg) * Math.PI) / 180;
+    const vx = Math.cos(angle) * ANGLED_BULLET_SPEED;
+    const vy = Math.sin(angle) * ANGLED_BULLET_SPEED;
 
     angledBullets.push({
       x: startX,
       y: startY,
-      vx: vxLeft,
-      vy: vyLeft,
-      damage,
-    });
-    angledBullets.push({
-      x: startX,
-      y: startY,
-      vx: vxRight,
-      vy: vyRight,
+      vx,
+      vy,
       damage,
     });
   }
