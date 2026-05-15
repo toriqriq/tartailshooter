@@ -1,5 +1,5 @@
 // Import objek player dan fungsi untuk menggambar player
-import { player, drawPlayer } from "./js/player.js";
+import { player, drawPlayer } from "../entities/player.js";
 
 import {
   angledBullets,
@@ -7,7 +7,7 @@ import {
   angledAutoShoot,
   increaseAngledBulletCount,
   angledBulletCount,
-} from "./js/angledBullet.js";
+} from "../weapons/angledBullet.js";
 
 // Import variabel dan fungsi terkait peluru biasa dan peluru pelacak
 import {
@@ -18,7 +18,7 @@ import {
   setBulletCount, // fungsi set jumlah peluru
   drawHomingBullets, // fungsi gambar peluru pelacak
   shootHoming, // fungsi tembak peluru pelacak
-} from "./js/bullet.js";
+} from "../weapons/bullet.js";
 
 // Import variabel dan fungsi terkait musuh, skor, level, dan callback game over
 import {
@@ -30,10 +30,10 @@ import {
   currentLevel, // level saat ini
   spawnGreenEnemy, // fungsi spawn musuh hijau (2 hit)
   setGameOverCallback, // fungsi set callback game over
-} from "./js/enemy.js";
+} from "../entities/enemy.js";
 
 // Import fungsi untuk setup kontrol keyboard/player
-import { setupControls } from "./js/control.js";
+import { setupControls } from "./control.js";
 
 // Flag apakah game sudah selesai atau belum
 let gameOver = false;

@@ -1,4 +1,8 @@
-import { increaseAngledBulletCount, angledBullets } from "./angledBullet.js";
+import {
+  increaseAngledBulletCount,
+  angledBullets,
+} from "../weapons/angledBullet.js";
+import { addItemToInventory } from "./player.js";
 
 // Array menyimpan semua musuh yang aktif di layar
 export const enemies = [];
@@ -20,7 +24,7 @@ export const levelStages = [
 const MAX_ENEMIES_BASE = 2;
 
 // Import peluru pelacak dan fungsi untuk menambah peluru pelacak
-import { homingBullets, addHomingBullet } from "./bullet.js";
+import { homingBullets, addHomingBullet } from "../weapons/bullet.js";
 
 // Fungsi callback yang akan dipanggil saat game over, default kosong
 let onGameOver = () => {};
@@ -86,6 +90,7 @@ export function drawEnemies(ctx, bullets, player) {
 
         enemies.splice(ei, 1); // hapus musuh
         score++; // tambah skor pemain
+        dropRandomItem(); // chance drop item saat musuh mati
 
         // Jika musuh ungu mati, panggil callback khusus
         if (e.color === "purple") {
@@ -172,7 +177,7 @@ export function spawnEnemy(canvas) {
 export function spawnEnemyRandomInterval(
   canvas,
   minDelay = 2000,
-  maxDelay = 10000
+  maxDelay = 10000,
 ) {
   function spawnAndReschedule() {
     spawnEnemy(canvas); // spawn musuh
@@ -197,4 +202,23 @@ export function spawnGreenEnemy() {
   const x = Math.random() * (canvas.width - size);
   // properti hit = jumlah tembakan diterima, mulai dari 0
   enemies.push({ x, y: 0, w: size, h: size, color: "green", hit: 0 });
+}
+
+// Fungsi untuk drop item secara random saat musuh mati
+function dropRandomItem() {
+  const dropChance = 0.1; // 10% chance drop item
+  if (Math.random() < dropChance) {
+    const categories = ["armor", "energy"];
+    const category = categories[Math.floor(Math.random() * categories.length)];
+    const items = [
+      "basicArmor",
+      "advancedArmor",
+      "eliteArmor",
+      "basicEnergy",
+      "advancedEnergy",
+      "eliteEnergy",
+    ];
+    const itemId = items[Math.floor(Math.random() * items.length)];
+    addItemToInventory(category, itemId);
+  }
 }

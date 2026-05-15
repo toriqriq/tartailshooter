@@ -1,4 +1,4 @@
-// js/angledBullet.js
+// src/weapons/angledBullet.js
 
 export let angledBullets = [];
 export let angledBulletCount = 1; // mulai dengan 1 ruas

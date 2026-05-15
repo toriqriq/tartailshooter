@@ -8,7 +8,7 @@ export function setupControls(canvas, player) {
     (e) => {
       isTouching = true; // tandai sedang disentuh
     },
-    { passive: false } // mencegah default agar bisa handle touchmove dengan preventDefault
+    { passive: false }, // mencegah default agar bisa handle touchmove dengan preventDefault
   );
 
   // Event listener untuk gerakan sentuhan (touchmove)
@@ -23,7 +23,7 @@ export function setupControls(canvas, player) {
       // batasi posisi player agar tidak keluar canvas (20px margin kiri kanan)
       player.x = Math.max(20, Math.min(canvas.width - 20, touchX));
     },
-    { passive: false }
+    { passive: false },
   );
 
   // Event listener saat sentuhan berakhir (touchend)
