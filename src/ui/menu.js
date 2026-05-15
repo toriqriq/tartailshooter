@@ -9,6 +9,8 @@ export class GameMenu {
     this.selectedEnergy = null;
     this.selectedWeapon = "basicShot";
     this.menuVisible = true;
+    this.menuButton = null;
+    this.onStartClick = null;
   }
 
   createMenuHTML() {
@@ -338,6 +340,7 @@ export class GameMenu {
     // Start game button
     document.getElementById("startGameBtn").addEventListener("click", () => {
       this.hide();
+      this.onStartClick?.();
     });
   }
 
@@ -508,12 +511,18 @@ export class GameMenu {
   }
 
   createMenuButton() {
+    const existingButton = document.getElementById("gameMenuBtn");
+    if (existingButton) {
+      return existingButton;
+    }
+
     const button = document.createElement("button");
     button.id = "gameMenuBtn";
     button.className = "menu-btn";
     button.innerHTML = "☰";
     button.title = "Menu (ESC)";
     document.body.appendChild(button);
+    this.menuButton = button;
     return button;
   }
 

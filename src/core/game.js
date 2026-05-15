@@ -172,36 +172,30 @@ function startGame() {
 const menu = new GameMenu();
 menu.render();
 
-// Buat event listener untuk tombol START GAME
-const checkMenuClosed = setInterval(() => {
-  if (!menu.menuVisible) {
-    clearInterval(checkMenuClosed);
+menu.onStartClick = () => {
+  const selections = menu.getSelections();
 
-    // Ambil pilihan dari menu
-    const selections = menu.getSelections();
-
-    // Equip item yang dipilih
-    if (selections.armor) {
-      addItemToInventory("armor", selections.armor);
-      equipItem("armor", selections.armor);
-    }
-    if (selections.energy) {
-      addItemToInventory("energy", selections.energy);
-      equipItem("energy", selections.energy);
-    }
-
-    // Set weapon yang dipilih
-    player.selectedWeapon = selections.weapon;
-
-    console.log("Loadout dipilih:", selections);
-    console.log(
-      "Player stats - Speed:",
-      player.speed,
-      "Defense:",
-      player.defense,
-    );
-
-    // Mulai game
-    startGame();
+  // Equip item yang dipilih
+  if (selections.armor) {
+    addItemToInventory("armor", selections.armor);
+    equipItem("armor", selections.armor);
   }
-}, 100);
+  if (selections.energy) {
+    addItemToInventory("energy", selections.energy);
+    equipItem("energy", selections.energy);
+  }
+
+  // Set weapon yang dipilih
+  player.selectedWeapon = selections.weapon;
+
+  console.log("Loadout dipilih:", selections);
+  console.log(
+    "Player stats - Speed:",
+    player.speed,
+    "Defense:",
+    player.defense,
+  );
+
+  // Mulai game
+  startGame();
+};
