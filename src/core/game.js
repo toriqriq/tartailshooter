@@ -1,5 +1,10 @@
 // Import objek player dan fungsi untuk menggambar player
-import { player, drawPlayer } from "../entities/player.js";
+import {
+  player,
+  drawPlayer,
+  addItemToInventory,
+  equipItem,
+} from "../entities/player.js";
 
 import {
   angledBullets,
@@ -8,6 +13,8 @@ import {
   increaseAngledBulletCount,
   angledBulletCount,
 } from "../weapons/angledBullet.js";
+
+import { GameMenu } from "../ui/menu.js";
 
 // Import variabel dan fungsi terkait peluru biasa dan peluru pelacak
 import {
@@ -38,6 +45,9 @@ import { setupControls } from "./control.js";
 // Flag apakah game sudah selesai atau belum
 let gameOver = false;
 
+// Flag untuk pause game
+let gamePaused = false;
+
 // Ambil elemen canvas dari HTML
 const canvas = document.getElementById("game");
 
@@ -51,7 +61,14 @@ function gameLoop() {
     ctx.fillStyle = "red"; // warna tulisan merah
     ctx.font = "30px sans-serif"; // font besar dan jelas
     ctx.fillText("GAME OVER", canvas.width / 2 - 80, canvas.height / 2); // tampilkan tulisan Game Over di tengah layar
+    requestAnimationFrame(gameLoop);
     return; // hentikan game loop agar tidak update lagi
+  }
+
+  // Jika game sedang pause, jangan render tapi tetap loop
+  if (gamePaused) {
+    requestAnimationFrame(gameLoop);
+    return;
   }
 
   // Bersihkan canvas seluruh area sebelum menggambar frame baru
@@ -83,34 +100,108 @@ function gameLoop() {
   requestAnimationFrame(gameLoop);
 }
 
-// Setup kontrol keyboard dan mouse untuk player di canvas
-setupControls(canvas, player);
+// Fungsi untuk memulai game setelah menu ditutup
+function startGame() {
+  // Setup kontrol keyboard dan mouse untuk player di canvas
+  setupControls(canvas, player);
 
-// Jalankan autoShoot tiap 3 detik untuk otomatis menembak peluru biasa
-setInterval(() => autoShoot(player), 3000);
+  // Jalankan autoShoot tiap 3 detik untuk otomatis menembak peluru biasa
+  setInterval(() => autoShoot(player), 3000);
 
-// Spawn musuh merah secara acak tiap 3 sampai 8 detik
-spawnEnemyRandomInterval(canvas, 3000, 8000);
+  // Spawn musuh merah secara acak tiap 3 sampai 8 detik
+  spawnEnemyRandomInterval(canvas, 3000, 8000);
 
-// Spawn musuh hijau (butuh 2 hit) tiap 8 detik
-setInterval(() => spawnGreenEnemy(), 8000);
+  // Spawn musuh hijau (butuh 2 hit) tiap 8 detik
+  setInterval(() => spawnGreenEnemy(), 8000);
 
-// Peluru pelacak otomatis ditembakkan tiap 5 detik
-setInterval(() => shootHoming(player), 5000);
+  // Peluru pelacak otomatis ditembakkan tiap 5 detik
+  setInterval(() => shootHoming(player), 5000);
 
-setInterval(() => angledAutoShoot(player), 6000); // Peluru miring otomatis
+  setInterval(() => angledAutoShoot(player), 6000); // Peluru miring otomatis
 
-// Hubungkan callback untuk menambah peluru jika musuh ungu berhasil dibunuh
-setOnPurpleEnemyKilledCallback(() => {
-  setBulletCount(bulletCount + 1); // tambah 1 peluru
-  console.log(`Bullet count increased to ${bulletCount + 1}`);
-});
+  // Hubungkan callback untuk menambah peluru jika musuh ungu berhasil dibunuh
+  setOnPurpleEnemyKilledCallback(() => {
+    setBulletCount(bulletCount + 1); // tambah 1 peluru
+    console.log(`Bullet count increased to ${bulletCount + 1}`);
+  });
 
-// Hubungkan callback game over saat player tertabrak musuh
-setGameOverCallback(() => {
-  gameOver = true; // set flag game over
-  console.log("💥 Game Over! Pemain ditabrak musuh.");
-});
+  // Hubungkan callback game over saat player tertabrak musuh
+  setGameOverCallback(() => {
+    gameOver = true; // set flag game over
+    console.log("💥 Game Over! Pemain ditabrak musuh.");
+  });
 
-// Mulai game loop pertama kali, game berjalan dari sini
-gameLoop();
+  // Buat dan setup menu button
+  const menuBtn = menu.createMenuButton();
+  menuBtn.addEventListener("click", () => {
+    gamePaused = true;
+    menu.showPauseMenu();
+  });
+
+  // Setup pause menu callbacks
+  menu.onResumeClick = () => {
+    gamePaused = false;
+    menu.hidePauseMenu();
+  };
+
+  menu.onRestartClick = () => {
+    location.reload();
+  };
+
+  menu.onLoadoutClick = () => {
+    menu.reset();
+    menu.show();
+    menu.menuVisible = true;
+    gamePaused = false;
+    menu.hidePauseMenu();
+  };
+
+  // Keyboard shortcut untuk pause (ESC)
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && !gameOver && !gamePaused) {
+      gamePaused = true;
+      menu.showPauseMenu();
+    }
+  });
+
+  // Mulai game loop pertama kali, game berjalan dari sini
+  gameLoop();
+}
+
+// Tampilkan menu saat game dimulai
+const menu = new GameMenu();
+menu.render();
+
+// Buat event listener untuk tombol START GAME
+const checkMenuClosed = setInterval(() => {
+  if (!menu.menuVisible) {
+    clearInterval(checkMenuClosed);
+
+    // Ambil pilihan dari menu
+    const selections = menu.getSelections();
+
+    // Equip item yang dipilih
+    if (selections.armor) {
+      addItemToInventory("armor", selections.armor);
+      equipItem("armor", selections.armor);
+    }
+    if (selections.energy) {
+      addItemToInventory("energy", selections.energy);
+      equipItem("energy", selections.energy);
+    }
+
+    // Set weapon yang dipilih
+    player.selectedWeapon = selections.weapon;
+
+    console.log("Loadout dipilih:", selections);
+    console.log(
+      "Player stats - Speed:",
+      player.speed,
+      "Defense:",
+      player.defense,
+    );
+
+    // Mulai game
+    startGame();
+  }
+}, 100);

@@ -14,6 +14,7 @@ export const player = {
   inventory: [], // array item yang dimiliki
   equippedArmor: null, // item armor yang dikenakan
   equippedEnergy: null, // item energy yang dikenakan
+  selectedWeapon: "basicShot", // weapon utama yang dipilih
 };
 
 export function drawPlayer(ctx) {
